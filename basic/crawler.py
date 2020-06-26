@@ -46,6 +46,18 @@ class Service:
             print(str(n_title)+'위')
             print('title: {}'.format(i.text))
 
+    def naver_movie(self, payload):
+        soup = BeautifulSoup(urlopen(payload.url), payload.parser)
+        driver = webdriver.Chrome(payload.path)
+        driver.get(payload.url)
+        print(soup.prettify())
+        #all_divs = soup.find_all('div', attrs={'class':'tit3'})
+        m_list = [div.a.string for div in soup.find_all('div', attrs={'class':'tit3'})]
+        for i in m_list:
+            print(i)
+        driver.close()
+
+
 class Controller:
     def __init__(self):
         self.service = Service()
@@ -56,10 +68,17 @@ class Controller:
         self.model.parser = 'lxml'
         self.service.bugs_music(self.model)
 
+    def naver_movie(self, url):
+        self.model.url = url
+        self.model.parser = 'html.parser'
+        self.model.path = 'data/chromedriver.exe'
+        self.service.naver_movie(self.model)
+
+
 def print_menu():                       #main을 쓰지 않고, 벽에 붙여서 시행하면 이 메소드가 가장 먼저 시행된다.
     print('0. Exxxit')
     print('1. Crawl BugsPage')
-    print('2. Show Crawled Page')
+    print('2. Crawl NaverMovie Page')
     return input('Menu\n')
 
 app = Controller()
@@ -70,6 +89,6 @@ while 1:
     if menu == '1':
         app.bugs_music('https://music.bugs.co.kr/chart/track/realtime/total?chartdate=20200625&charthour=14')
     if menu == '2':
-        pass
+        app.naver_movie("https://movie.naver.com/movie/sdb/rank/rmovie.nhn")
     if menu == '0':
         break
