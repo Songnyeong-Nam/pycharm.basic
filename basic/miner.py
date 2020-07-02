@@ -19,17 +19,17 @@ class Entity:
        self._target = ''
 
     @property
-    def context(self) -> str: return self.context
+    def context(self) -> str: return self._context
     @context.setter
     def context(self, context): self._context = context
 
     @property
-    def fname(self) -> str: return self.fname
+    def fname(self) -> str: return self._fname
     @fname.setter
     def fname(self,fname): self._fname = fname
 
     @property
-    def target(self) -> str: return self.target
+    def target(self) -> str: return self._target
     @target.setter
     def target(self,target): self._target = target
 
@@ -56,14 +56,26 @@ class Service:
         tokenizer = re.compile(r'[^ㄱ-힣]')
         # ^는 not 과 start 의 두 가지 개념이 있다.
         # [^]는 not, ^[] 는 start의 의미로 표현된다.
-        self.texts = tokenizer.sub('', texts)
+        self.texts = tokenizer.sub(' ', texts)
         # 한글이 아닌 것은 '' 처리해서
+        print(f'단계 : slef.texts[:300]')
 
     def conversion_token(self):
         print('>> 3. 한글 token 변환')
+        self.tokens = word_tokenize(self.texts)
+        print(f'3단계 결과물 : {self.tokens[:300]}')
 
     def compound_noun(self):
         print('>> 4. 복합명사화')
+        arr_ = []    #동사/명사의 구분은 다운받은 딕셔너리를 통해 판별한다.
+        for token in self.tokens:
+            token_pos = self.okt.pos(token)
+            _=[txt_tags[0] for txt_tags in token_pos
+               if txt_tags[1] == 'Noun']
+        if len("".join(_)) > 1:
+            noun_tokens.append("".join(_))
+        self.texts = " ".join((noun_tokens))
+        print(f'4단계 {}')
 
     def extract_stopword(self) :
         print('>> 5. 노이즈 코퍼스(=스탑워드) token 추출')
@@ -87,7 +99,10 @@ class Controller:
     def data_analysis(self):
         entity = Entity()
         service = Service()
-        service.extract_text()
+        entity.context = './data' 
+        entity.fname = 'kr-Report_2018.txt'
+
+        service.extract_text(entity)
         service.tokenize()
         service.conversion_token()      #한글에만 적용
         service.compound_noun()         #명사만 compound 시킴
@@ -106,5 +121,10 @@ app = Controller()
 while 1 :
     menu = print_menu()
     if menu == '1':
+    if menu == '2':
+    if menu == '3':
+    if menu == '4':
+    if menu == '5':
+
     if menu =='0':
         break
